@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de Mots Français</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Comfortaa', cursive;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0e6ff;
+            color: #4a4a4a;
+        }
+        .container {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #6a5acd;
+            margin-bottom: 1.5rem;
+        }
+        .input-group {
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .input-group label {
+            flex: 1;
+            text-align: right;
+            margin-right: 1rem;
+        }
+        .input-group input {
+            width: 60px;
+            padding: 0.5rem;
+            border: 2px solid #d1c4e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: 'Comfortaa', cursive;
+        }
+        .rarity-container {
+            margin: 2rem 0;
+            position: relative;
+        }
+        .rarity-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        .rarity-slider {
+            position: relative;
+            height: 15px;
+            background: #d1c4e9;
+            border-radius: 15px;
+            margin: 2rem 0;
+        }
+        .rarity-range {
+            position: absolute;
+            height: 100%;
+            background: #9575cd;
+            border-radius: 15px;
+        }
+        .rarity-handle {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: #6a5acd;
+            border-radius: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+        }
+        .rarity-tooltip {
+            position: absolute;
+            background: #6a5acd;
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+        }
+        button {
+            background-color: #6a5acd;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-family: 'Comfortaa', cursive;
+        }
+        button:hover {
+            background-color: #5a4abf;
+        }
+        #result {
+            margin-top: 2rem;
+            text-align: left;
+        }
+        .word-item {
+            position: relative;
+            margin-bottom: 1rem;
+            padding: 1rem 1rem 1rem 2.5rem;
+            background-color: #e6e6fa;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+        .word-item:hover {
+            background-color: #d8bfd8;
+        }
+        .word-link {
+            color: #4a4a4a;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .word-type {
+            font-style: italic;
+            color: #6a5acd;
+        }
+        .word-definition {
+            margin-top: 0.5rem;
+        }
+        .extra-definitions {
+            display: none;
+            margin-top: 0.5rem;
+            padding-left: 1rem;
+            border-left: 2px solid #9575cd;
+        }
+        .lock-icon {
+            position: absolute;
+            left: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #d3d3d3;
+        }
+        .word-item.locked .lock-icon {
+            color: #6a5acd;
+        }
+        .remove-icon {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #ff0000;
+            font-size: 1.2rem;
+        }
+        .clickable-word {
+            cursor: pointer;
+            text-decoration: underline;
+            color: #6a5acd;
+        }
+        .custom-files-container {
+            margin-bottom: 1rem;
+        }
+        .custom-files-container select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px solid #d1c4e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: 'Comfortaa', cursive;
+        }
+        .refresh-button {
+            background-color: #9575cd;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-family: 'Comfortaa', cursive;
+            margin-top: 0.5rem;
+        }
+        .refresh-button:hover {
+            background-color: #7e57c2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Générateur de Mots Français</h1>
+        <div class="custom-files-container">
+            <select id="custom-files" multiple>
+                <!-- Options will be populated dynamically -->
+            </select>
+            <button id="refresh-files" class="refresh-button">Rafraîchir les fichiers</button>
+        </div>
+        <div class="input-group">
+            <label for="noun-count">Nombre de noms:</label>
+            <input type="number" id="noun-count" min="0" value="3">
+        </div>
+        <div class="input-group">
+            <label for="adj-count">Nombre d'adjectifs:</label>
+            <input type="number" id="adj-count" min="0" value="3">
+        </div>
+        <div class="input-group">
+            <label for="verb-count">Nombre de verbes:</label>
+            <input type="number" id="verb-count" min="0" value="3">
+        </div>
+        <div class="input-group">
+            <label for="exclude-communes">Exclure les communes françaises:</label>
+            <input type="checkbox" id="exclude-communes">
+        </div>
+        <div class="rarity-container">
+            <div class="rarity-labels">
+				<span>Rare</span>
+				<span>Commun</span>
+			</div>
+            <div class="rarity-slider">
+                <div class="rarity-range"></div>
+                <div class="rarity-handle" id="handle-min">
+                    <div class="rarity-tooltip"></div>
+                </div>
+                <div class="rarity-handle" id="handle-max">
+                    <div class="rarity-tooltip"></div>
+                </div>
+            </div>
+        </div>
+        <button id="generate">Générer</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const nounCount = document.getElementById('noun-count');
+        const adjCount = document.getElementById('adj-count');
+        const verbCount = document.getElementById('verb-count');
+        const generateBtn = document.getElementById('generate');
+        const resultDiv = document.getElementById('result');
+        const slider = document.querySelector('.rarity-slider');
+        const range = slider.querySelector('.rarity-range');
+        const handleMin = document.getElementById('handle-min');
+        const handleMax = document.getElementById('handle-max');
+        const tooltipMin = handleMin.querySelector('.rarity-tooltip');
+        const tooltipMax = handleMax.querySelector('.rarity-tooltip');
+        const customFilesSelect = document.getElementById('custom-files');
+        const refreshFilesBtn = document.getElementById('refresh-files');
+
+        let isDragging = null;
+        let lockedWords = [];
+
+        function setRangePosition() {
+            const minPos = parseFloat(handleMin.style.left) || 0;
+            const maxPos = parseFloat(handleMax.style.left) || 100;
+            range.style.left = `${minPos}%`;
+            range.style.width = `${maxPos - minPos}%`;
+        }
+
+        function updateTooltip(handle) {
+			const tooltip = handle.querySelector('.rarity-tooltip');
+			const value = Math.round(parseFloat(handle.style.left));
+			tooltip.textContent = `${value}%`;
+		}
+
+        function moveHandle(e) {
+            if (!isDragging) return;
+            
+            const rect = slider.getBoundingClientRect();
+            let pos = (e.clientX - rect.left) / rect.width * 100;
+            pos = Math.max(0, Math.min(pos, 100));
+
+            if (isDragging === handleMin && pos < parseFloat(handleMax.style.left)) {
+                isDragging.style.left = `${pos}%`;
+            } else if (isDragging === handleMax && pos > parseFloat(handleMin.style.left)) {
+                isDragging.style.left = `${pos}%`;
+            }
+
+            setRangePosition();
+            updateTooltip(isDragging);
+        }
+
+        handleMin.addEventListener('mousedown', () => isDragging = handleMin);
+        handleMax.addEventListener('mousedown', () => isDragging = handleMax);
+        document.addEventListener('mousemove', moveHandle);
+        document.addEventListener('mouseup', () => {
+            isDragging = null;
+        });
+
+        // Initialisation
+        handleMin.style.left = '30%';
+        handleMax.style.left = '70%';
+        setRangePosition();
+        updateTooltip(handleMin);
+        updateTooltip(handleMax);
+
+        function createWordItem(word, category, definition) {
+            const wordItem = document.createElement('div');
+            wordItem.className = 'word-item';
+            if (lockedWords.some(w => w.word === word)) {
+                wordItem.classList.add('locked');
+            }
+
+            const definitions = definition ? definition.split(' | ') : ['Pas de définition disponible'];
+            const mainDefinition = definitions[0];
+            const extraDefinitions = definitions.slice(1);
+
+            wordItem.innerHTML = `
+                <i class="fas fa-lock${lockedWords.some(w => w.word === word) ? '' : '-open'} lock-icon"></i>
+                <a href="https://fr.wiktionary.org/wiki/${encodeURIComponent(word)}" target="_blank" class="word-link">${word}</a>
+                <span class="word-type"> : ${category}</span>
+                <div class="word-definition">${makeWordsClickable(mainDefinition)}</div>
+                <i class="fas fa-times remove-icon"></i>
+            `;
+
+            const lockIcon = wordItem.querySelector('.lock-icon');
+            lockIcon.addEventListener('click', () => {
+                if (lockedWords.some(w => w.word === word)) {
+                    lockedWords = lockedWords.filter(w => w.word !== word);
+                    wordItem.classList.remove('locked');
+                    lockIcon.classList.replace('fa-lock', 'fa-lock-open');
+                } else {
+                    lockedWords.push({word, category, definition});
+                    wordItem.classList.add('locked');
+                    lockIcon.classList.replace('fa-lock-open', 'fa-lock');
+                }
+            });
+
+            const removeIcon = wordItem.querySelector('.remove-icon');
+            removeIcon.addEventListener('click', () => {
+                lockedWords = lockedWords.filter(w => w.word !== word);
+                wordItem.remove();
+            });
+
+            if (extraDefinitions.length > 0) {
+                const extraDiv = document.createElement('div');
+                extraDiv.className = 'extra-definitions';
+                extraDiv.innerHTML = extraDefinitions.map((def, index) => `<div>${index + 2}. ${makeWordsClickable(def)}</div>`).join('');
+                wordItem.appendChild(extraDiv);
+
+                wordItem.addEventListener('mouseenter', () => {
+                    extraDiv.style.display = 'block';
+                });
+                wordItem.addEventListener('mouseleave', () => {
+                    extraDiv.style.display = 'none';
+                });
+            }
+
+            addClickableWordListeners(wordItem);
+
+            return wordItem;
+        }
+
+        function makeWordsClickable(text) {
+            return text.replace(/\p{L}+/gu, '<span class="clickable-word">$&</span>');
+        }
+
+        function addClickableWordListeners(element = document) {
+            element.querySelectorAll('.clickable-word').forEach(word => {
+                word.addEventListener('click', () => {
+                    const selectedFiles = Array.from(customFilesSelect.selectedOptions).map(option => option.value);
+                    fetch('/get_word', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            word: word.textContent,
+                            custom_files: selectedFiles
+                        }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && !lockedWords.some(w => w.word === data.word)) {
+                            const wordItem = createWordItem(data.word, data.category, data.definition);
+                            resultDiv.appendChild(wordItem);
+                            lockedWords.push(data);
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                    });
+                });
+            });
+        }
+
+        function loadCustomFiles() {
+            fetch('/get_custom_files')
+                .then(response => response.json())
+                .then(files => {
+                    customFilesSelect.innerHTML = '';
+                    files.forEach(file => {
+                        const option = document.createElement('option');
+                        option.value = file;
+                        option.textContent = file;
+                        customFilesSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error loading custom files:', error));
+        }
+
+        refreshFilesBtn.addEventListener('click', loadCustomFiles);
+
+        loadCustomFiles();  // Load custom files on page load
+
+        generateBtn.addEventListener('click', () => {
+			const nounCountValue = parseInt(nounCount.value);
+			const adjCountValue = parseInt(adjCount.value);
+			const verbCountValue = parseInt(verbCount.value);
+			const rarity_min = parseFloat(handleMin.style.left) / 100;
+			const rarity_max = parseFloat(handleMax.style.left) / 100;
+			const excludeCommunes = document.getElementById('exclude-communes').checked;
+			const selectedFiles = Array.from(customFilesSelect.selectedOptions).map(option => option.value);
+
+			fetch('/get_words', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					noun_count: nounCountValue,
+					adj_count: adjCountValue,
+					verb_count: verbCountValue,
+					rarity_min: rarity_min,
+					rarity_max: rarity_max,
+					exclude_communes: excludeCommunes,
+					locked_words: lockedWords,
+					custom_files: selectedFiles
+				}),
+			})
+			.then(response => response.json())
+			.then(data => {
+                resultDiv.innerHTML = '';
+                // Ajouter d'abord les mots verrouillés
+                lockedWords.forEach(word => {
+                    const wordItem = createWordItem(word.word, word.category, word.definition);
+                    resultDiv.appendChild(wordItem);
+                });
+                // Ensuite, ajouter les nouveaux mots
+                data.forEach(([word, category, definition]) => {
+                    if (!lockedWords.some(w => w.word === word)) {
+                        const wordItem = createWordItem(word, category, definition);
+                        resultDiv.appendChild(wordItem);
+                    }
+                });
+                addClickableWordListeners(resultDiv);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                resultDiv.innerHTML = 'Une erreur est survenue lors de la génération des mots.';
+            });
+        });
+    </script>
+</body>
+</html>
